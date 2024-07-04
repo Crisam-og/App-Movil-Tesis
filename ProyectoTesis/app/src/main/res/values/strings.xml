@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ProyectoTesis</string>
+    <string name="btn_guarda">Guardar</string>
+    <string name="hint_nombre">Nombre Completo</string>
+    <string name="hint_telefono">Telefono</string>
+    <string name="signupTextRegistro">Estas registrado, ingresa ahora</string>
+</resources>
