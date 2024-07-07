@@ -2,6 +2,15 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ProyectoTesis" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/colorapp</item>
+        <item name="colorPrimaryVariant">@color/colorapp</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/splash</item>
+        <item name="colorSecondaryVariant">@color/colorapp</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 

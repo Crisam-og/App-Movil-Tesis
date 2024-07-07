@@ -6,6 +6,8 @@ import android.os.Bundle;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +36,8 @@ public class LoginActivity extends Activity {
         loginButton = findViewById(R.id.loginButton);
         registerTextView = findViewById(R.id.signupText);
 
+        // Inicializa SharedPreferences
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +70,8 @@ public class LoginActivity extends Activity {
                 if (response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
                     // Guarda los tokens en SharedPreferences o en un lugar seguro
+                    saveTokens(loginResponse);
+
                     Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                     // Navega a la siguiente actividad
                     startMainActivity();
@@ -84,5 +90,30 @@ public class LoginActivity extends Activity {
     private void startMainActivity(){
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
+
+        String refreshToken = sharedPreferences.getString("refresh_token", null);
+        String accessToken = sharedPreferences.getString("access_token", null);
+        Log.d("LoginActivity", "Stored Refresh Token: " + refreshToken);
+        Log.d("LoginActivity", "Stored Access Token: " + accessToken);
+    }
+    private void saveTokens(LoginResponse loginResponse) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("refresh_token", loginResponse.getRefresh());
+        editor.putString("access_token", loginResponse.getAccess());
+        editor.putString("nombre", loginResponse.getNombre());
+        editor.putString("apellidos", loginResponse.getApellidos());
+        editor.putString("email", loginResponse.getEmail());
+        editor.putString("phone_number", loginResponse.getPhone_number());
+        editor.putString("address", loginResponse.getAddress());
+        editor.apply();  // Aplica los cambios de forma asincrónica
+
+        // Log para ver los tokens
+        Log.d("LoginActivity", "Refresh Token: " + loginResponse.getRefresh());
+        Log.d("LoginActivity", "Access Token: " + loginResponse.getAccess());Log.d("LoginActivity", "Nombre: " + loginResponse.getNombre());
+        Log.d("LoginActivity", "Apellidos: " + loginResponse.getApellidos());
+        Log.d("LoginActivity", "Email: " + loginResponse.getEmail());
+        Log.d("LoginActivity", "Phone Number: " + loginResponse.getPhone_number());
+        Log.d("LoginActivity", "Address: " + loginResponse.getAddress());
+
     }
 }

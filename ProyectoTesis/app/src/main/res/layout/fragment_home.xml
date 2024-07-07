@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="16dp"
+    tools:context=".Fragments.Home.HomeFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+    <!-- Botón para abrir la cámara -->
+    <Button
+        android:id="@+id/btnOpenCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Abrir Cámara"
+        android:backgroundTint="@color/colorapp"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        app:cornerRadius="20dp"/>
+
+    <!-- ImageView para mostrar la imagen capturada -->
+    <ImageView
+        android:id="@+id/imgCaptured"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="Imagen capturada"
+        android:scaleType="centerCrop"
+        android:background="@color/gris"
+        android:src="@drawable/ic_camera"
+        android:padding="150dp"/>
+
+    <!-- Campo de descripción -->
+    <EditText
+        android:id="@+id/txtDescripcion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_descripcion"
+        android:layout_marginTop="15dp"
+        android:inputType="textMultiLine"
+        android:drawableLeft="@drawable/ic_text_field"
+        android:drawablePadding="8dp"
+        android:lines="4"
+        android:gravity="top"
+        android:textSize="16sp"
+        android:overScrollMode="always"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideInset"
+        android:scrollHorizontally="false"
+        android:textColorHighlight="@color/cardview_dark_background"
+        android:background="@drawable/custom_edittext"/>
+
+    <!-- Campo de dirección referencial -->
+    <EditText
+        android:id="@+id/txtDireccionReferencial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_direcciónReferencial"
+        android:drawableLeft="@drawable/ic_location"
+        android:drawablePadding="8dp"
+        android:layout_marginTop="6dp"
+        android:textSize="16sp"
+        android:inputType="text"
+        android:padding="10dp"
+        android:textColorHighlight="@color/cardview_dark_background"
+        android:background="@drawable/custom_edittext"/>
+
+    <EditText
+        android:id="@+id/txtLatitud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Latitud"
+        android:drawableLeft="@drawable/ic_location"
+        android:drawablePadding="8dp"
+        android:layout_marginTop="6dp"
+        android:textSize="16sp"
+        android:inputType="text"
+        android:padding="10dp"
+        android:textColorHighlight="@color/cardview_dark_background"
+        android:background="@drawable/custom_edittext"
+        />
+    <EditText
+        android:id="@+id/txtLongitud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Logintud"
+        android:drawableLeft="@drawable/ic_location"
+        android:drawablePadding="8dp"
+        android:layout_marginTop="6dp"
+        android:textSize="16sp"
+        android:inputType="text"
+        android:padding="10dp"
+        android:textColorHighlight="@color/cardview_dark_background"
+        android:background="@drawable/custom_edittext"/>
+
+    <!-- Spinner para selección de distrito -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hint_distrito"/>
+
+        <Spinner
+            android:id="@+id/spinnerDistrito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_weight="1"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/btnEnviar"
+        android:layout_marginTop="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/btn_enviar"
+        android:backgroundTint="@color/colorapp"
+        android:onClick="ObtenerCoordendasActual"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        app:cornerRadius="20dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

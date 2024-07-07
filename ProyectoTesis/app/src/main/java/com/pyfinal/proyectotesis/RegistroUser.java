@@ -3,6 +3,7 @@ package com.pyfinal.proyectotesis;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,12 +35,20 @@ public class RegistroUser extends Activity {
         editTexDireccion = findViewById(R.id.address);
         editTextPassword = findViewById(R.id.password);
         buttonRegister = findViewById(R.id.registrarseButton);
+        registerView = findViewById(R.id.signupTextRegistro);
+
 
 
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registerClient();
+            }
+        });
+        registerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startLogin();
             }
         });
     }
@@ -53,7 +62,43 @@ public class RegistroUser extends Activity {
         String phone = editTextPhone.getText().toString().trim();
         String address = editTexDireccion.getText().toString().trim();
 
-        Cliente registerRequest = new Cliente(firstName, lastName, username, email,
+        if (firstName.isEmpty()) {
+            editTextName.setError("Nombre requerido");
+            editTextName.requestFocus();
+            return;
+        }
+
+        if (lastName.isEmpty()) {
+            editTextApellidos.setError("Apellidos requeridos");
+            editTextApellidos.requestFocus();
+            return;
+        }
+
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editTextEmail.setError("Correo electrónico inválido");
+            editTextEmail.requestFocus();
+            return;
+        }
+
+        if (!esContrasenaSegura(password)) {
+            editTextPassword.setError("La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una minúscula y un número");
+            editTextPassword.requestFocus();
+            return;
+        }
+
+        if (phone.length() != 9) {
+            editTextPhone.setError("Teléfono debe contener 9 dígitos");
+            editTextPhone.requestFocus();
+            return;
+        }
+
+        if (address.isEmpty()) {
+            editTexDireccion.setError("Dirección requerida");
+            editTexDireccion.requestFocus();
+            return;
+        }
+
+        Cliente registerRequest = new Cliente(firstName, lastName, email,
                 password, phone, address);
 
         Call<RegisterResponse> call = RetrofitClient
@@ -69,6 +114,7 @@ public class RegistroUser extends Activity {
                     Toast.makeText(RegistroUser.this, registerResponse.getMessage(), Toast.LENGTH_LONG).show();
                     // Aquí puedes navegar a la actividad de login o a donde sea apropiado
                     startLogin();
+
                 } else {
                     Toast.makeText(RegistroUser.this, "Registration failed", Toast.LENGTH_SHORT).show();
                 }
@@ -83,6 +129,12 @@ public class RegistroUser extends Activity {
     private void startLogin(){
         Intent intent = new Intent(RegistroUser.this, LoginActivity.class);
         startActivity(intent);
+    }
+    private boolean esContrasenaSegura(String password) {
+        // Establecer los criterios de seguridad aquí
+        // Por ejemplo, longitud mínima de 8 caracteres y al menos una letra mayúscula, una minúscula y un número
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
+        return password.matches(regex);
     }
 }
 

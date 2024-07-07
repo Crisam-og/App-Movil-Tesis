@@ -2,12 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorapp">#109F92</color>
+    <color name="colorapp">#00FF48</color>
     <color name="purple">#109F92</color>
     <color name="letra">#FF000000</color>
     <color name="splash">#35CCBE</color>
     <color name="red">#BC1015</color>
-    <color name="gris">#BBBBBB</color>
+    <color name="gris">#AFAFAF</color>
 
 
 </resources>

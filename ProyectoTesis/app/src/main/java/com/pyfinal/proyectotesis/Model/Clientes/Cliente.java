@@ -3,7 +3,6 @@ package com.pyfinal.proyectotesis.Model.Clientes;
 public class Cliente {
     private String nombre;
     private String apellidos;
-    private String username;
     private String email;
     private String password;
     private String phone_number;
@@ -22,14 +21,6 @@ public class Cliente {
 
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getEmail() {
@@ -66,10 +57,9 @@ public class Cliente {
 
     private String address;
 
-    public Cliente(String nombre, String apellidos, String username, String email, String password, String phone_number, String address) {
+    public Cliente(String nombre, String apellidos, String email, String password, String phone_number, String address) {
         this.nombre = nombre;
         this.apellidos = apellidos;
-        this.username = username;
         this.email = email;
         this.password = password;
         this.phone_number = phone_number;

@@ -1,7 +1,21 @@
 <resources>
     <string name="app_name">ProyectoTesis</string>
-    <string name="btn_guarda">Guardar</string>
+    <string name="btn_enviar">Enviar</string>
+    <string name="btn_login">Ingresar</string>
+
     <string name="hint_nombre">Nombre Completo</string>
     <string name="hint_telefono">Telefono</string>
-    <string name="signupTextRegistro">Estas registrado, ingresa ahora</string>
+    <string name="hint_descripcion">Descripción</string>
+    <string name="hint_direcciónReferencial">Dirección referencial</string>
+    <string name="hint_distrito">Selecciona tu distrito</string>
+
+
+    <string name="signupTextRegistro">Ya tienes cuenta?, Inicia Sesión</string>
+    <string name="loginText">No estas registrado , registrate ahora</string>
+    <string name="loginText_Welcome">¡Hola! Que gusto verte de nuevo.</string>
+    <string name="signupTextColor">Inicia Sesión</string>
+    <string name="open_nav">Open Navigation Drawer</string>
+    <string name="close_nav">Close Navigation Drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
