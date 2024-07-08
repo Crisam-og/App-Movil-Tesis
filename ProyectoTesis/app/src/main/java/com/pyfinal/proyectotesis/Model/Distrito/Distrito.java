@@ -4,6 +4,7 @@ public class Distrito {
     private int id;
     private  String nombre_distrito;
 
+
     public int getId() {
         return id;
     }

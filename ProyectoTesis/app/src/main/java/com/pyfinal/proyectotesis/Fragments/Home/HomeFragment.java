@@ -1,9 +1,13 @@
 package com.pyfinal.proyectotesis.Fragments.Home;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -26,12 +30,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import android.Manifest;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.common.util.IOUtils;
+import com.google.gson.JsonObject;
 import com.pyfinal.proyectotesis.Interface.ApiService;
+import com.pyfinal.proyectotesis.Model.Clientes.RegisterResponse;
 import com.pyfinal.proyectotesis.Model.Distrito.Distrito;
 import com.pyfinal.proyectotesis.Model.Distrito.DistritoResponse;
+import com.pyfinal.proyectotesis.Model.Reportes.Reporte;
+import com.pyfinal.proyectotesis.Model.Reportes.ReporteResponse;
 import com.pyfinal.proyectotesis.R;
 
 //Librerias de GoogleMaps
@@ -46,9 +56,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,26 +74,46 @@ import retrofit2.Retrofit;
 public class HomeFragment extends Fragment {
     public static final int REQUEST_CODE = 1;
     private EditText editTextDescripcion, editTexDireccionReferencial, editTextLatitud, editTextLongitud;
-    private Button buttonEnviar;
+    private Button buttonEnviar, btnAbrirCamera;
     private Spinner spDistrito;
+    private ImageView imgCapture;
     FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_LOCATION = 3;
+    private SharedPreferences sharedPreferences;
     private ArrayList<String> getnombre_distrito = new ArrayList<String>();
+    private List<Distrito> distritos;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
+
+    private Uri imageUri;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        sharedPreferences = getActivity().getSharedPreferences("user_prefs",Context.MODE_PRIVATE);
+
+
         editTextDescripcion = view.findViewById(R.id.txtDescripcion);
         editTexDireccionReferencial = view.findViewById(R.id.txtDireccionReferencial);
         editTextLatitud = view.findViewById(R.id.txtLatitud);
         editTextLongitud = view.findViewById(R.id.txtLongitud);
+        imgCapture = view.findViewById(R.id.imgCaptured);
         spDistrito = (Spinner) view.findViewById(R.id.spinnerDistrito);
         buttonEnviar = view.findViewById(R.id.btnEnviar);
+        btnAbrirCamera = view.findViewById(R.id.btnOpenCamera);
 
 
         getDistrito();
+
+
+        btnAbrirCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileChooser();
+            }
+        });
 
         buttonEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,12 +124,111 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
+    private void openFileChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+    private void enviarReporte(){
+        getDistrito();
+        obtenerCoordenada();
+
+        String latitud = editTextLatitud.getText().toString();
+        String longitud = editTextLongitud.getText().toString();
+
+        if (latitud.isEmpty() || longitud.isEmpty()) {
+            Toast.makeText(requireContext(), "Coordenadas no disponibles. Por favor, intentelo de nuevo.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Obtener el ID del usuario logueado desde SharedPreferences
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("id", "");
+
+        // Obtener el ID del distrito seleccionado
+        int selectedPosition = spDistrito.getSelectedItemPosition();
+        if (selectedPosition == 0) { // Si es "----Select----"
+            Toast.makeText(getContext(), "Por favor, seleccione un distrito", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Obtener el distrito seleccionado
+        Distrito selectedDistrito = distritos.get(selectedPosition - 1); // -1 porque el primer item es "----Select----"
+        int distritoId = selectedDistrito.getId();
+        Log.d("Distrito", "Select Distrito id: " + distritoId);
+        // Obtener la descripción
+        String descripcion = editTextDescripcion.getText().toString();
+
+        // Obtener latitud y longitud
+
+        // Obtener dirección
+        String direccion = editTexDireccionReferencial.getText().toString();
+
+
+
+        // Crear el cuerpo de la solicitud multipart
+        MultipartBody.Part imagePart = null;
+        if (imageUri != null) {
+            try {
+                InputStream is = requireContext().getContentResolver().openInputStream(imageUri);
+                byte[] bytes = IOUtils.toByteArray(is);
+                RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), bytes);
+                imagePart = MultipartBody.Part.createFormData("imagen", "image.jpg", requestFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Crear el cuerpo de la solicitud
+        RequestBody clienteBody = RequestBody.create(MediaType.parse("text/plain"), userId);
+        RequestBody distritoBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(distritoId));
+        RequestBody descripcionBody = RequestBody.create(MediaType.parse("text/plain"), descripcion);
+        RequestBody latBody = RequestBody.create(MediaType.parse("text/plain"), latitud);
+        RequestBody longBody = RequestBody.create(MediaType.parse("text/plain"), longitud);
+        RequestBody direccionBody = RequestBody.create(MediaType.parse("text/plain"), direccion);
+
+        Log.d("Cliente", "Cliente Rb id: " + clienteBody);
+        Log.d("Distrito", "Distrito Rb id: " + distritoBody);
+        Log.d("Descripción", "Descrpcion Rb valor: " + descripcionBody);
+        Log.d("Latitud", "Latitud Rb valor: " + latBody);
+        Log.d("Longitud", "Longitud Rb valor: " + longBody);
+        Log.d("Dirección", "Dirección Rb valor: " + direccionBody);
+
+        Log.d("Cliente", "Cliente id: " + userId);
+        Log.d("Distrito", "Distrito id: " + distritoId);
+        Log.d("Descripción", "Descrpcion valor: " + descripcion);
+        Log.d("Latitud", "Latitud valor: " + latitud);
+        Log.d("Longitud", "Longitud valor: " + longitud);
+        Log.d("Dirección", "Dirección valor: " + direccion);
+        // Hacer la llamada a la API
+        Call<ReporteResponse> call = RetrofitClient.getInstance().getApi().registerReporte(
+                clienteBody, distritoBody, imagePart, descripcionBody, latBody, longBody, direccionBody);
+
+        call.enqueue(new Callback<ReporteResponse>() {
+            @Override
+            public void onResponse(Call<ReporteResponse> call, Response<ReporteResponse> response) {
+                if (response.isSuccessful()) {
+                    ReporteResponse reporteResponse = response.body();
+                    Toast.makeText(getContext(), reporteResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    // Aquí puedes agregar lógica adicional después de un envío exitoso
+                    limpiarCasillas();
+                } else {
+                    Toast.makeText(getContext(), "Error al enviar el reporte", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReporteResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void getDistrito() {
         RetrofitClient.getInstance().getApi().getDistritos().enqueue(new Callback<DistritoResponse>() {
             @Override
             public void onResponse(Call<DistritoResponse> call, Response<DistritoResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Distrito> distritos = response.body().getData();
+                    distritos = response.body().getData();
                     List<String> getnombre_distrito = new ArrayList<>();
 
                     // Añadir un item por defecto
@@ -131,7 +266,7 @@ public class HomeFragment extends Fragment {
     }
 
 
-    private void enviarReporte() {
+    private void obtenerCoordenada() {
         // Verificar si los servicios de ubicación están habilitados
         LocationManager locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
         boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -179,7 +314,6 @@ public class HomeFragment extends Fragment {
                             double longitude = locationResult.getLocations().get(latestLocationIndex).getLongitude();
                             editTextLatitud.setText(String.valueOf(latitud));
                             editTextLongitud.setText(String.valueOf(longitude));
-                            editTexDireccionReferencial.setText(String.valueOf("https://www.google.com/maps?q="+latitud+","+longitude));
                         } else {
                             // Mostrar un Toast si no se pudo obtener la ubicación
                             requireActivity().runOnUiThread(new Runnable() {
@@ -201,15 +335,45 @@ public class HomeFragment extends Fragment {
             ActivityCompat.requestPermissions(requireActivity(), new String[]{permiso}, requestCode);
         }
     }
+    private  void limpiarCasillas(){
+        editTextDescripcion.setText("");
+        editTexDireccionReferencial.setText("");
+        editTextLatitud.setText("");
+        editTextLongitud.setText("");
+        //imgCapture.setImageURI(null);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE && grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                enviarReporte();
-            } else {
-                Toast.makeText(requireContext(), "Permiso Denegado ..", Toast.LENGTH_SHORT).show();
+        if (grantResults.length > 0) {
+            switch (requestCode) {
+                case REQUEST_CODE:
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        enviarReporte();
+                    } else {
+                        Toast.makeText(requireContext(), "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        openFileChooser();
+                    } else {
+                        Toast.makeText(requireContext(), "Permiso de almacenamiento denegado", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
             }
+        }
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK
+                && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            // Opcionalmente, puedes mostrar la imagen seleccionada en un ImageView
+            imgCapture.setImageURI(imageUri);
         }
     }
 }

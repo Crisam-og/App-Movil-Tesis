@@ -100,6 +100,7 @@ public class LoginActivity extends Activity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("refresh_token", loginResponse.getRefresh());
         editor.putString("access_token", loginResponse.getAccess());
+        editor.putString("id", String.valueOf(loginResponse.getId()));
         editor.putString("nombre", loginResponse.getNombre());
         editor.putString("apellidos", loginResponse.getApellidos());
         editor.putString("email", loginResponse.getEmail());
@@ -109,7 +110,9 @@ public class LoginActivity extends Activity {
 
         // Log para ver los tokens
         Log.d("LoginActivity", "Refresh Token: " + loginResponse.getRefresh());
-        Log.d("LoginActivity", "Access Token: " + loginResponse.getAccess());Log.d("LoginActivity", "Nombre: " + loginResponse.getNombre());
+        Log.d("LoginActivity", "Access Token: " + loginResponse.getAccess());
+        Log.d("LoginActivity", "id: " + loginResponse.getId());
+        Log.d("LoginActivity", "Nombre: " + loginResponse.getNombre());
         Log.d("LoginActivity", "Apellidos: " + loginResponse.getApellidos());
         Log.d("LoginActivity", "Email: " + loginResponse.getEmail());
         Log.d("LoginActivity", "Phone Number: " + loginResponse.getPhone_number());

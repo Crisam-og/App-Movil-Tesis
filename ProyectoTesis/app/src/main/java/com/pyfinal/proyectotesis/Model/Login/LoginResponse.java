@@ -3,10 +3,20 @@ package com.pyfinal.proyectotesis.Model.Login;
 public class LoginResponse {
     private String refresh;
     private String access;
+    private int id;
     private String nombre;
     private String apellidos;
     private String username;
     private String email;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     private String phone_number;
     private String address;
 
